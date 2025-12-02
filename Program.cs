@@ -1,9 +1,5 @@
 ﻿Wizard wz1 = new Wizard("TestWizard");
 
-Console.WriteLine(wz1.Abilities[0].Name);
-Console.WriteLine(wz1.Abilities[0].Damage);
-Console.WriteLine(wz1.Abilities[0].Multihit);
+Wizard wz2 = new Wizard("EnemyWizard");
 
-Console.WriteLine(wz1.Abilities[1].Name);
-Console.WriteLine(wz1.Abilities[1].Damage);
-Console.WriteLine(wz1.Abilities[1].Multihit);
+wz1.Attack(wz1.Abilities[0], wz2);

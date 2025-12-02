@@ -14,5 +14,4 @@ public Ability(string name, int damage, string statusEffect, int accuracy, bool 
         Accuracy = accuracy;
         Multihit = multihit;
     }
-
 }
