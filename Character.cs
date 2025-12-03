@@ -46,16 +46,16 @@ public class Character
 
             if (criticalHit == false)
             {
-                Console.WriteLine($"You attacked {target.Name} and dealt {finalDamage} damage. Enemy HP reduced to {target.Health}");
+                Console.WriteLine($"{Name} attacked {target.Name} and dealt {finalDamage} damage. {target.Name} HP reduced to {target.Health}.\n");
             }
             else
             {
-                Console.WriteLine($"You attacked {target.Name} for a critical hit and dealt {finalDamage} damage. Enemy HP reduced to {target.Health}");
+                Console.WriteLine($"{Name} attacked {target.Name} for a critical hit and dealt {finalDamage} damage. {target.Name} HP reduced to {target.Health}.\n");
             }
         }
         else
         {
-            Console.WriteLine("Your attack missed!");
+            Console.WriteLine("The attack missed!");
         }
     }
 }
