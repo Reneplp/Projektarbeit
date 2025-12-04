@@ -207,7 +207,7 @@ public class Warrior : Character
 {
     public Warrior(string name) : base(name, "Warrior", 100, 3, 1, 5)
     {
-        Ability A1 = new Ability("Dummy Attack", 1, "", 100);
+        Ability A1 = new Ability("Dummy Attack", 5, "", 100);
         Ability[] warriorAbilities = { A1 };
 
         Abilities = warriorAbilities;

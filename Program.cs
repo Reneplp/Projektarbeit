@@ -62,5 +62,12 @@ void Fighting(Character player, Character enemy)
         }
     }
 }
-Fighting(wz1, w1);
 
+void Healing(Character player)
+{
+    player.Health = player.MaxHealth;
+    Console.WriteLine($"You found a fountain and drink from it. You feel strengthened.. HP set to {player.Health}\n");
+}
+
+Fighting(wz1, w1);
+Healing(wz1);
