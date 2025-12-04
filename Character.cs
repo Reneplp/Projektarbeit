@@ -4,13 +4,14 @@ public class Character
     public string Name { get; set; }
     public string Role { get; set; } // TODO
     public int Health { get; set; }
+    public int MaxHealth { get; set; }
     public int Armor { get; set; }
     public int Damage { get; set; }
     public int Level { get; set; } // TODO
     public int CritChance { get; set; }
-    public string StatusEffect { get; set; } // TODO
-    public int FreezeCounter { get; set; }//TODO Reset after encounter
-    public int PoisonCounter { get; set; }//TODO Reset after encounter
+    public string StatusEffect { get; set; }
+    public int FreezeCounter { get; set; }
+    public int PoisonCounter { get; set; }
 
     public Ability[] Abilities { get; set; }
     public Character(string name, string role, int health, int armor, int damage, int critChance)
@@ -18,6 +19,7 @@ public class Character
         Name = name;
         Role = role;
         Health = health;
+        MaxHealth = health;
         Armor = armor;
         Damage = damage;
         Level = 1;
@@ -30,7 +32,6 @@ public class Character
     {
         bool criticalHit = false;
         int armor = target.Armor;
-        int targetHP = target.Health;
         int damage = ability.Damage;
         int accuracy = ability.Accuracy;
 
@@ -42,24 +43,56 @@ public class Character
             {
                 int baseDamage = (int)(damage * (1 + Damage * 0.5f));
 
-                if (random.Next(100) <= CritChance)
+                if (!ability.Multihit)
                 {
-                    baseDamage *= 2;
-                    criticalHit = true;
-                }
+                    if (random.Next(100) <= CritChance)
+                    {
+                        baseDamage *= 2;
+                        criticalHit = true;
+                    }
+                    int finalDamage = (int)(baseDamage / (1 + armor * 0.5f));
+                    target.Health -= finalDamage;
 
-                int finalDamage = (int)(baseDamage / (1 + armor * 0.5f));
-                target.Health = targetHP - finalDamage;
-
-                if (criticalHit == false)
-                {
-                    Console.WriteLine($"{Name} attacked {target.Name} and dealt {finalDamage} damage. {target.Name} HP reduced to {target.Health}.\n");
+                    if (criticalHit == false)
+                    {
+                        Console.WriteLine($"{Name} attacked {target.Name} and dealt {finalDamage} damage. {target.Name} HP reduced to {target.Health}.\n");
+                    }
+                    else
+                    {
+                        Console.WriteLine($"{Name} attacked {target.Name} for a critical hit and dealt {finalDamage} damage. {target.Name} HP reduced to {target.Health}.\n");
+                    }
                 }
                 else
                 {
-                    Console.WriteLine($"{Name} attacked {target.Name} for a critical hit and dealt {finalDamage} damage. {target.Name} HP reduced to {target.Health}.\n");
+                    int hitNumber = random.Next(2, 6);
+                    int hitCounter = 1;
+                    do
+                    {
+                        int currentDamage = baseDamage;
+                        if (random.Next(100) <= CritChance)
+                        {
+                            currentDamage *= 2;
+                            criticalHit = true;
+                        }
+
+                        int finalDamage = (int)(currentDamage / (1 + armor * 0.5f));
+                        target.Health -= finalDamage;
+
+                        if (criticalHit == false)
+                        {
+                            Console.WriteLine($"{Name} attacked {target.Name} and dealt {finalDamage} damage. {target.Name} HP reduced to {target.Health}.\n");
+                        }
+                        else
+                        {
+                            Console.WriteLine($"{Name} attacked {target.Name} for a critical hit and dealt {finalDamage} damage. {target.Name} HP reduced to {target.Health}.\n");
+                        }
+                        hitCounter++;
+                        criticalHit = false;
+                    }
+                    while (hitCounter <= hitNumber);
                 }
                 ApplyStatusEffect(ability, target);
+
             }
             else
             {
@@ -77,7 +110,7 @@ public class Character
             {
                 case "burn":
                     int burnChance = random.Next(100);
-                    if (burnChance <= 100)
+                    if (burnChance <= 55)
                     {
                         Console.WriteLine($"{target.Name} is burning!");
                         target.StatusEffect = applyStatusEffect;
@@ -85,7 +118,7 @@ public class Character
                     break;
                 case "freeze":
                     int freezeChance = random.Next(100);
-                    if (freezeChance <= 100 && target.StatusEffect != "freeze")
+                    if (freezeChance <= 35 && target.StatusEffect != "freeze")
                     {
                         target.FreezeCounter = 0;
                         Console.WriteLine($"{target.Name} is frozen!");
@@ -185,8 +218,8 @@ public class Wizard : Character
     public Wizard(string name) : base(name, "Wizard", 100, 1, 3, 15)
     {
         Ability A1 = new Ability("Arcane Eruption", 25, "", 50);
-        Ability A2 = new Ability("Arcane Missiles", 5, "freeze", 95, true);
-        Ability A3 = new Ability("Volcanic Shot", 5, "poison", 95, true);
+        Ability A2 = new Ability("Arcane Missiles", 5, "", 95, true);
+        Ability A3 = new Ability("Volcanic Shot", 5, "burn", 95);
         Ability[] wizardAbilities = { A1, A2, A3 };
 
         Abilities = wizardAbilities;
