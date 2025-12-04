@@ -1,6 +1,6 @@
-﻿Wizard wz1 = new Wizard("TestWizard");
+﻿Wizard wz1 = new Wizard("Rene");
 
-Wizard wz2 = new Wizard("EnemyWizard");
+Warrior w1 = new Warrior("Gabriel");
 
 Ability AbilitySelection(Character player)
 {
@@ -21,8 +21,6 @@ Ability AbilitySelection(Character player)
             if (choice > 0 && choice <= player.Abilities.Length)
             {
                 return player.Abilities[choice - 1];
-                validEntry = true;
-
             }
             else
             {
@@ -64,5 +62,5 @@ void Fighting(Character player, Character enemy)
         }
     }
 }
-Fighting(wz1, wz2);
+Fighting(wz1, w1);
 
