@@ -42,7 +42,6 @@ Ability AbilitySelection(Character player)
 
 void Fighting(Character player, Character enemy)
 {
-    Random random = new Random();
     while (player.Health > 0 && enemy.Health > 0)
     {
         Ability selectedAbility = AbilitySelection(player);
@@ -54,7 +53,7 @@ void Fighting(Character player, Character enemy)
             break;
         }
         Thread.Sleep(2000);
-        enemy.Attack(enemy.Abilities[random.Next(0,enemy.Abilities.Length)], player);
+        enemy.Attack(enemy.Abilities[RNG.random.Next(0,enemy.Abilities.Length)], player);
         if (player.Health <= 0)
         {
             Console.WriteLine($"{enemy.Name} defeated you. Better luck next time.");

@@ -12,6 +12,10 @@ public class Character
     public string StatusEffect { get; set; }
     public int FreezeCounter { get; set; }
     public int PoisonCounter { get; set; }
+    public int TempArmor { get; set; }
+    public int TempDamage { get; set; }
+    public int ArmorDuration { get; set; }
+    public int DamageDuration { get; set; }
 
     public Ability[] Abilities { get; set; }
     public Character(string name, string role, int health, int armor, int damage, int critChance)
@@ -27,25 +31,29 @@ public class Character
         StatusEffect = "";
         FreezeCounter = 0;
         PoisonCounter = 0;
+        TempArmor = 0;
+        TempDamage = 0;
+        ArmorDuration = 0;
+        DamageDuration = 0;
     }
     public void Attack(Ability ability, Character target)
     {
         bool criticalHit = false;
-        int armor = target.Armor;
+        int armor = target.Armor + target.TempArmor;
+        int attackerDamage = Damage + TempDamage;
         int damage = ability.Damage;
         int accuracy = ability.Accuracy;
 
-        Random random = new Random();
         if (executeStatusEffect() == false)
         {
 
-            if (random.Next(100) <= accuracy)
+            if (RNG.random.Next(100) <= accuracy)
             {
-                int baseDamage = (int)(damage * (1 + Damage * 0.5f));
+                int baseDamage = (int)(damage * (1 + attackerDamage * 0.5f));
 
                 if (!ability.Multihit)
                 {
-                    if (random.Next(100) <= CritChance)
+                    if (RNG.random.Next(100) <= CritChance)
                     {
                         baseDamage *= 2;
                         criticalHit = true;
@@ -64,12 +72,12 @@ public class Character
                 }
                 else
                 {
-                    int hitNumber = random.Next(2, 6);
+                    int hitNumber = RNG.random.Next(2, 6);
                     int hitCounter = 1;
                     do
                     {
                         int currentDamage = baseDamage;
-                        if (random.Next(100) <= CritChance)
+                        if (RNG.random.Next(100) <= CritChance)
                         {
                             currentDamage *= 2;
                             criticalHit = true;
@@ -102,14 +110,13 @@ public class Character
     }
     public void ApplyStatusEffect(Ability ability, Character target)
     {
-        Random random = new Random();
         string applyStatusEffect = ability.StatusEffect.ToLower();
         if (applyStatusEffect != "")
         {
             switch (applyStatusEffect)
             {
                 case "burn":
-                    int burnChance = random.Next(100);
+                    int burnChance = RNG.random.Next(100);
                     if (burnChance <= 55)
                     {
                         Console.WriteLine($"{target.Name} is burning!");
@@ -117,7 +124,7 @@ public class Character
                     }
                     break;
                 case "freeze":
-                    int freezeChance = random.Next(100);
+                    int freezeChance = RNG.random.Next(100);
                     if (freezeChance <= 35 && target.StatusEffect != "freeze")
                     {
                         target.FreezeCounter = 0;
@@ -126,7 +133,7 @@ public class Character
                     }
                     break;
                 case "paralyze":
-                    int paralyzeChance = random.Next(100);
+                    int paralyzeChance = RNG.random.Next(100);
                     if (paralyzeChance <= 45)
                     {
                         Console.WriteLine($"{target.Name} is paralyzed!");
@@ -134,7 +141,7 @@ public class Character
                     }
                     break;
                 case "bleed":
-                    int bleedChance = random.Next(100);
+                    int bleedChance = RNG.random.Next(100);
                     if (bleedChance <= 75)
                     {
                         Console.WriteLine($"{target.Name} is bleeding!");
@@ -142,7 +149,7 @@ public class Character
                     }
                     break;
                 case "poison":
-                    int poisonChance = random.Next(100);
+                    int poisonChance = RNG.random.Next(100);
                     if (poisonChance <= 75 && target.StatusEffect != "poison")
                     {
                         target.PoisonCounter = 0;
@@ -155,10 +162,21 @@ public class Character
                     break;
             }
         }
+        if (ability.DamageModifier != 0)
+        {
+            target.TempDamage += ability.DamageModifier;
+            target.DamageDuration = ability.ModifierDuration;
+            Console.WriteLine($"{target.Name}'s damage changed by {ability.DamageModifier} for {ability.ModifierDuration} turns!");
+        }
+        if (ability.ArmorModifier != 0)
+        {
+            target.TempArmor += ability.ArmorModifier;
+            target.ArmorDuration = ability.ModifierDuration;
+            Console.WriteLine($"{target.Name}'s armor changed by {ability.DamageModifier} for {ability.ModifierDuration} turns!");
+        }
     }
     public bool executeStatusEffect()
     {
-        Random random = new Random();
         switch (StatusEffect)
         {
             case "burn":
@@ -167,7 +185,7 @@ public class Character
                 break;
             case "freeze":
                 FreezeCounter++;
-                if (FreezeCounter <= 10)
+                if (FreezeCounter <= 3)
                 {
                     Console.WriteLine($"{Name} is frozen! Freeze Counter {FreezeCounter}");
                     return true;
@@ -179,7 +197,7 @@ public class Character
                 }
                 break;
             case "paralyze":
-                int movingChance = random.Next(100);
+                int movingChance = RNG.random.Next(100);
                 if (movingChance <= 50)
                 {
                     Console.WriteLine($"{Name} is paralyzed and can't attack.");
@@ -197,9 +215,26 @@ public class Character
                 Console.WriteLine($"{Name} lost {PoisonDamage} Hp due to poison.. New HP: {Health}");
                 break;
         }
+        if (DamageDuration > 0)
+        {
+            DamageDuration--;
+            if (DamageDuration == 0)
+            {
+                TempDamage = 0;
+                Console.WriteLine($"{Name}'s damage buff wore off.");
+            }
+        }
+        if (ArmorDuration > 0)
+        {
+            ArmorDuration--;
+            if (ArmorDuration == 0)
+            {
+                TempArmor = 0;
+                Console.WriteLine($"{Name}'s armor buff wore off.");
+            }
+        }
         return false;
     }
-
 }
 
 
@@ -207,8 +242,13 @@ public class Warrior : Character
 {
     public Warrior(string name) : base(name, "Warrior", 100, 3, 1, 5)
     {
-        Ability A1 = new Ability("Dummy Attack", 5, "", 100);
-        Ability[] warriorAbilities = { A1 };
+        Ability A1 = new Ability("Dummy Attack", 5, 100);
+        Ability A2 = new Ability("War Cry", 0, 100)
+        {
+            DamageModifier = 2,
+            ModifierDuration = 3
+        };
+        Ability[] warriorAbilities = { A1, A2 };
 
         Abilities = warriorAbilities;
     }
@@ -217,9 +257,15 @@ public class Wizard : Character
 {
     public Wizard(string name) : base(name, "Wizard", 100, 1, 3, 15)
     {
-        Ability A1 = new Ability("Arcane Eruption", 25, "", 50);
-        Ability A2 = new Ability("Arcane Missiles", 5, "", 95, true);
-        Ability A3 = new Ability("Volcanic Shot", 5, "burn", 95);
+        Ability A1 = new Ability("Arcane Eruption", 25, 50);
+        Ability A2 = new Ability("Arcane Missiles", 5, 95)
+        {
+            Multihit = true
+        };
+        Ability A3 = new Ability("Volcanic Shot", 5, 95)
+        {
+            StatusEffect = "burn"
+        };
         Ability[] wizardAbilities = { A1, A2, A3 };
 
         Abilities = wizardAbilities;
@@ -228,4 +274,9 @@ public class Wizard : Character
 public class Rogue : Character
 {
     public Rogue(string name) : base(name, "Rogue", 100, 2, 2, 30) { }
+}
+
+public static class RNG
+{
+    public static Random random = new Random();
 }
