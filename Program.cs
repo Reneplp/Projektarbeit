@@ -50,6 +50,7 @@ void Fighting(Character player, Character enemy)
         if (enemy.Health <= 0)
         {
             Console.WriteLine($"{enemy.Name} got defeated. You won!");
+            player.GainXP(20);
             break;
         }
         Thread.Sleep(2000);

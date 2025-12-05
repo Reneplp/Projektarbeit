@@ -7,7 +7,7 @@ public class Character
     public int MaxHealth { get; set; }
     public int Armor { get; set; }
     public int Damage { get; set; }
-    public int Level { get; set; } // TODO
+    public int Level { get; set; }
     public int CritChance { get; set; }
     public string StatusEffect { get; set; }
     public int FreezeCounter { get; set; }
@@ -16,6 +16,8 @@ public class Character
     public int TempDamage { get; set; }
     public int ArmorDuration { get; set; }
     public int DamageDuration { get; set; }
+    public int XP { get; set; }
+    public int XPToNextLevel => Level * 25;
 
     public Ability[] Abilities { get; set; }
     public Character(string name, string role, int health, int armor, int damage, int critChance)
@@ -35,6 +37,7 @@ public class Character
         TempDamage = 0;
         ArmorDuration = 0;
         DamageDuration = 0;
+        XP = 0;
     }
     public void Attack(Ability ability, Character target)
     {
@@ -235,6 +238,32 @@ public class Character
         }
         return false;
     }
+
+    public void GainXP(int amount)
+    {
+        XP += amount;
+        Console.WriteLine($"{Name} gained {amount} XP.");
+
+        while (XP >= XPToNextLevel)
+        {
+            XP -= XPToNextLevel;
+            LevelUp();
+        }
+    }
+    public void LevelUp()
+    {
+        Level++;
+        MaxHealth += 10;
+        Health = MaxHealth;
+        Damage += 1;
+        Armor += 1;
+
+        Console.WriteLine($"--- LEVEL UP! {Name} reached Level {Level}! ---");
+        Console.WriteLine("Stats increased:");
+        Console.WriteLine($"Max Health: {MaxHealth}");
+        Console.WriteLine($"Damage: {Damage}");
+        Console.WriteLine($"Armor: {Armor}");
+    }
 }
 
 
@@ -266,9 +295,7 @@ public class Wizard : Character
         {
             StatusEffect = "burn"
         };
-        Ability[] wizardAbilities = { A1, A2, A3 };
-
-        Abilities = wizardAbilities;
+        Abilities = [A1, A2, A3];
     }
 }
 public class Rogue : Character
@@ -276,6 +303,197 @@ public class Rogue : Character
     public Rogue(string name) : base(name, "Rogue", 100, 2, 2, 30) { }
 }
 
+public class FireElemental : Character
+{
+    public FireElemental() : base("Fire Elemental", "Monster", 65, 0, 4, 5)
+    {
+        Ability A1 = new Ability("Flame Burst", 7, 90);
+        Ability A2 = new Ability("Ignite", 3, 85)
+        {
+            StatusEffect = "burn"
+        };
+        Ability A3 = new Ability("Flame Surge", 0, 100)
+        {
+            DamageModifier = 2,
+            ModifierDuration = 2
+        };
+        Abilities = [A1, A2, A3];
+    }
+}
+
+public class WaterElemental : Character
+{
+    public WaterElemental() : base("Water Elemental", "Monster", 85, 1, 3, 10)
+    {
+        Ability A1 = new Ability("Water Jet", 6, 95);
+        Ability A2 = new Ability("Soaked", 0, 90)
+        {
+            ArmorModifier = -1,
+            ModifierDuration = 3
+        };
+        Ability A3 = new Ability("Ice Shard", 4, 80)
+        {
+            StatusEffect = "freeze"
+        };
+        Abilities = [A1, A2, A3];
+    }
+}
+
+public class EarthElemental : Character
+{
+    public EarthElemental() : base("Earth Elemental", "Monster", 120, 3, 2, 2)
+    {
+        Ability A1 = new Ability("Rock Slam", 4, 90);
+        Ability A2 = new Ability("Stone Skin", 0, 100)
+        {
+            ArmorModifier = 2,
+            ModifierDuration = 3
+        };
+        Ability A3 = new Ability("Quake", 6, 70);
+        Abilities = [A1, A2, A3];
+    }
+}
+
+public class AirElemental : Character
+{
+    public AirElemental() : base("Air Elemental", "Monster", 60, 0, 3, 30)
+    {
+        Ability A1 = new Ability("Gust", 5, 95);
+        Ability A2 = new Ability("Slicing Wind", 4, 85)
+        {
+            Multihit = true
+        };
+        Ability A3 = new Ability("Thicken", 0, 100)
+        {
+            ArmorModifier = 2,
+            ModifierDuration = 3
+        };
+        Abilities = [A1, A2, A3];
+    }
+}
+
+public class ShadowWraith : Character
+{
+    public ShadowWraith() : base("Shadow Wraith", "Monster", 70, 1, 2, 15)
+    {
+        Ability A1 = new Ability("Dark Touch", 5, 90);
+        Ability A2 = new Ability("Curse", 0, 100)
+        {
+            DamageModifier = -2,
+            ModifierDuration = 3
+        };
+        Ability A3 = new Ability("Slash", 4, 85)
+        {
+            StatusEffect = "bleed"
+        };
+        Abilities = [A1, A2, A3];
+    }
+}
+
+public class Behir : Character
+{
+    public Behir() : base("Behir", "Monster", 80, 1, 2, 10)
+    {
+        Ability A1 = new Ability("Bolt Strike", 5, 90);
+        Ability A2 = new Ability("Thunder Fang", 2, 85)
+        {
+            StatusEffect = "paralyze"
+        };
+        Ability A3 = new Ability("Harden Scale", 0, 100)
+        {
+            ArmorModifier = 2,
+            ModifierDuration = 3
+        };
+        Abilities = [A1, A2, A3];
+    }
+}
+public class ClockworkSentinel : Character
+{
+    public ClockworkSentinel() : base("Clockwork Sentinel", "Monster", 110, 2, 3, 5)
+    {
+        Ability A1 = new Ability("Metal Fist", 6, 90);
+        Ability A2 = new Ability("Reinforce", 0, 100)
+        {
+            ArmorModifier = 2,
+            ModifierDuration = 2
+        };
+        Ability A3 = new Ability("Overclock", 0, 100)
+        {
+            DamageModifier = 2,
+            ModifierDuration = 2
+        };
+        Abilities = [A1, A2, A3];
+    }
+}
+public class WebDeveloper : Character
+{
+    public WebDeveloper() : base("Web Developer", "Monster", 75, 0, 3, 20)
+    {
+        Ability A1 = new Ability("Venomous Bite", 4, 90)
+        {
+            StatusEffect = "poison"
+        };
+        Ability A2 = new Ability("Rapid Strikes", 3, 90)
+        {
+            Multihit = true
+        };
+        Ability A3 = new Ability("Web Trap", 0, 80)
+        {
+            DamageModifier = -1,
+            ModifierDuration = 3
+        };
+        Abilities = [A1, A2, A3];
+    }
+}
+public class ArcaneTitan : Character
+{
+    public ArcaneTitan() : base("Arcane Titan", "Monster", 180, 3, 5, 10)
+    {
+        Ability A1 = new Ability("Titan Smash", 10, 90);
+        Ability A2 = new Ability("Arcane Shockwave", 6, 85)
+        {
+            DamageModifier = -2,
+            ModifierDuration = 2
+        };
+        Ability A3 = new Ability("Frozen Tomb", 4, 75)
+        {
+            StatusEffect = "freeze"
+        };
+        Ability A4 = new Ability("Rune Barrier", 0, 100)
+        {
+            ArmorModifier = 3,
+            ModifierDuration = 3
+        };
+        Abilities = [A1, A2, A3, A4];
+    }
+}
+public class Aeternyx : Character
+{
+    public Aeternyx() : base("Aeternyx, the primordial Hydra", "Monster", 260, 4, 6, 20)
+    {
+        Ability A1 = new Ability("Hydra Strike", 12, 90);
+        Ability A2 = new Ability("Searing Bite", 6, 85)
+        {
+            DamageModifier = 2,
+            ModifierDuration = 2
+        };
+        Ability A3 = new Ability("Chilling Roar", 0, 100)
+        {
+            ArmorModifier = -2,
+            ModifierDuration = 2
+        };
+        Ability A4 = new Ability("Toxic Breath", 5, 85)
+        {
+            StatusEffect = "poison"
+        };
+        Ability A5 = new Ability("Scale Regrowth", 0, 100)
+        {
+            ArmorModifier = 4,
+            ModifierDuration = 3
+        };
+        Abilities = [A1, A2, A3, A4, A5];
+    }
+}
 public static class RNG
 {
     public static Random random = new Random();
