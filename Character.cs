@@ -87,11 +87,18 @@ public class Character
 
                     if (criticalHit == false)
                     {
-                        Console.WriteLine($"{Name} attacked {target.Name} with {ability.Name} and dealt {finalDamage} damage. {target.Name} HP reduced to {target.Health}.\n");
+                        Console.WriteLine($"{Name} used {ability.Name}!");
+                        Console.WriteLine($"It dealt {finalDamage} damage to {target.Name}!");
+                        Console.WriteLine($"{target.Name}'s HP: {target.Health}/{target.MaxHealth}");
+                        Console.WriteLine();
                     }
                     else
                     {
-                        Console.WriteLine($"{Name} attacked {target.Name} with {ability.Name} for a critical hit and dealt {finalDamage} damage. {target.Name} HP reduced to {target.Health}.\n");
+                        Console.WriteLine($"{Name} used {ability.Name}!");
+                        Console.WriteLine("A critical hit!");
+                        Console.WriteLine($"It dealt {finalDamage} damage to {target.Name}!");
+                        Console.WriteLine($"{target.Name}'s HP: {target.Health}/{target.MaxHealth}");
+                        Console.WriteLine();
                     }
                 }
                 else
@@ -112,11 +119,18 @@ public class Character
 
                         if (criticalHit == false)
                         {
-                            Console.WriteLine($"{Name} attacked {target.Name} with {ability.Name} and dealt {finalDamage} damage. {target.Name} HP reduced to {target.Health}.\n");
+                            Console.WriteLine($"{Name} used {ability.Name}!");
+                            Console.WriteLine($"It dealt {finalDamage} damage to {target.Name}!");
+                            Console.WriteLine($"{target.Name}'s HP: {target.Health}/{target.MaxHealth}");
+                            Console.WriteLine();
                         }
                         else
                         {
-                            Console.WriteLine($"{Name} attacked {target.Name} with {ability.Name} for a critical hit and dealt {finalDamage} damage. {target.Name} HP reduced to {target.Health}.\n");
+                            Console.WriteLine($"{Name} used {ability.Name}!");
+                            Console.WriteLine("A critical hit!");
+                            Console.WriteLine($"It dealt {finalDamage} damage to {target.Name}!");
+                            Console.WriteLine($"{target.Name}'s HP: {target.Health}/{target.MaxHealth}");
+                            Console.WriteLine();
                         }
                         hitCounter++;
                         criticalHit = false;
@@ -280,6 +294,7 @@ public class Character
     {
         XP += amount;
         Console.WriteLine($"{Name} gained {amount} XP.");
+        Thread.Sleep(2000);
 
         while (XP >= XPToNextLevel)
         {
@@ -308,7 +323,7 @@ public class Warrior : Character
 {
     public Warrior(string name) : base(name, "Warrior", 110, 3, 2, 5)
     {
-        Ability A1 = new Ability("Heroic Charge", 6, 95);
+        Ability A1 = new Ability("Heroic Charge", 400, 100); // ursprüngliche values: 6, 95
         Ability A2 = new Ability("Shield Bash", 4, 90)
         {
             StatusEffect = "paralyze"
@@ -335,7 +350,7 @@ public class Berserker : Character
             ModifierDuration = 2,
             SelfCast = true,
         };
-        Ability A3 = new Ability("Hack and Slash", 6, 85)
+        Ability A3 = new Ability("Hack and Slash,", 6, 85)
         {
             Multihit = true
         };
