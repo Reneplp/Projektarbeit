@@ -157,7 +157,6 @@ void Fighting(Character player, Character enemy)
         {
             Console.WriteLine($"{enemy.Name} defeated you. Better luck next time.");
             Thread.Sleep(2000);
-            gameRunning = false;
             break;
         }
     }
@@ -301,6 +300,7 @@ while (gameRunning)
     {
         player.Health = player.MaxHealth;
         player.StatusEffect = "";
+          
     }
     else if (input == "2")
     {
