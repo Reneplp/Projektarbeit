@@ -18,6 +18,7 @@ public class Character
     public int DamageDuration { get; set; }
     public int XP { get; set; }
     public int XPToNextLevel => Level * 25;
+    public bool HasSubclass { get; set; }
 
     public Ability[] Abilities { get; set; }
     public Character(string name, string role, int health, int armor, int damage, int critChance)
@@ -38,6 +39,7 @@ public class Character
         ArmorDuration = 0;
         DamageDuration = 0;
         XP = 0;
+        HasSubclass = false;
     }
     public void Attack(Ability ability, Character target)
     {
@@ -341,8 +343,17 @@ public class Warrior : Character
 }
 public class Berserker : Character
 {
-    public Berserker(string name) : base(name, "Berserker", 120, 2, 4, 10)
+    public Berserker(Character baseCharacter) : base(
+    baseCharacter.Name,
+    "Berserker",
+     baseCharacter.MaxHealth + 10,
+     baseCharacter.Armor - 1,
+     baseCharacter.Damage + 2,
+     baseCharacter.CritChance + 5)
     {
+        Health = baseCharacter.Health + 10;
+        Level = baseCharacter.Level;
+
         Ability A1 = new Ability("Rage Strike", 8, 90);
         Ability A2 = new Ability("Blood Frenzy", 0, 100)
         {
@@ -350,7 +361,7 @@ public class Berserker : Character
             ModifierDuration = 2,
             SelfCast = true,
         };
-        Ability A3 = new Ability("Hack and Slash,", 6, 85)
+        Ability A3 = new Ability("Hack and Slash", 6, 85)
         {
             Multihit = true
         };
@@ -361,8 +372,19 @@ public class Berserker : Character
 }
 public class Knight : Character
 {
-    public Knight(string name) : base(name, "Knight", 140, 4, 2, 5)
+    public Knight(Character baseCharacter) : base(
+
+    baseCharacter.Name,
+    "Knight",
+     baseCharacter.MaxHealth + 30,
+     baseCharacter.Armor + 1,
+     baseCharacter.Damage,
+     baseCharacter.CritChance)
     {
+        Health = baseCharacter.Health + 30;
+        Level = baseCharacter.Level;
+
+
         Ability A1 = new Ability("Shield Charge", 4, 95)
         {
             StatusEffect = "paralyze"
@@ -378,10 +400,21 @@ public class Knight : Character
         Abilities = knightAbilities;
     }
 }
+
 public class Paladin : Character
 {
-    public Paladin(string name) : base(name, "Paladin", 130, 3, 3, 7)
+    public Paladin(Character baseCharacter) : base(
+    baseCharacter.Name,
+    "Paladin",
+     baseCharacter.MaxHealth + 20,
+     baseCharacter.Armor,
+     baseCharacter.Damage + 1,
+     baseCharacter.CritChance + 5)
     {
+        Health = baseCharacter.Health + 20;
+        Level = baseCharacter.Level;
+    
+    
         Ability A1 = new Ability("Smite", 7, 90);
         Ability A2 = new Ability("Holy Oath", 0, 100)
         {
@@ -418,8 +451,16 @@ public class Wizard : Character
 }
 public class Necromancer : Character
 {
-    public Necromancer(string name) : base(name, "Necromancer", 90, 1, 4, 15)
+    public Necromancer(Character baseCharacter) : base(
+    baseCharacter.Name,
+    "Necromancer",
+     baseCharacter.MaxHealth + 5,
+     baseCharacter.Armor,
+     baseCharacter.Damage + 1,
+     baseCharacter.CritChance)
     {
+        Health = baseCharacter.Health + 5;
+        Level = baseCharacter.Level;
         Ability A1 = new Ability("Hemorrhage", 4, 95)
         {
             StatusEffect = "bleed"
@@ -436,8 +477,16 @@ public class Necromancer : Character
 }
 public class ElementalMage : Character
 {
-    public ElementalMage(string name) : base(name, "Elemental Mage", 85, 1, 3, 20)
+    public ElementalMage(Character baseCharacter) : base(
+    baseCharacter.Name,
+    "Elemental Mage",
+     baseCharacter.MaxHealth,
+     baseCharacter.Armor,
+     baseCharacter.Damage + 1,
+     baseCharacter.CritChance + 5)
     {
+        Health = baseCharacter.Health;
+        Level = baseCharacter.Level;
         Ability A1 = new Ability("Elemental Surge", 5, 90);
         Ability A2 = new Ability("Elemental Chaos", 4, 85);
         Ability A3 = new Ability("Mana Flare", 0, 100)
@@ -452,8 +501,16 @@ public class ElementalMage : Character
 }
 public class Battlemage : Character
 {
-    public Battlemage(string name) : base(name, "Battlemage", 110, 2, 3, 25)
+    public Battlemage(Character baseCharacter) : base(
+    baseCharacter.Name,
+    "Battlemage",
+     baseCharacter.MaxHealth + 25,
+     baseCharacter.Armor + 1,
+     baseCharacter.Damage,
+     baseCharacter.CritChance + 5)
     {
+        Health = baseCharacter.Health + 25;
+        Level = baseCharacter.Level;
         Ability A1 = new Ability("Spellblade Slash", 6, 95)
         {
             StatusEffect = "bleed"
@@ -486,8 +543,16 @@ public class Rogue : Character
 
 public class Ranger : Character
 {
-    public Ranger(string name) : base(name, "Ranger", 100, 2, 3, 20)
+    public Ranger(Character baseCharacter) : base(
+    baseCharacter.Name,
+    "Ranger",
+     baseCharacter.MaxHealth + 10,
+     baseCharacter.Armor,
+     baseCharacter.Damage + 1,
+     baseCharacter.CritChance)
     {
+        Health = baseCharacter.Health + 10;
+        Level = baseCharacter.Level;
         Ability A1 = new Ability("Rapid Shots", 3, 95)
         {
             Multihit = true
@@ -505,8 +570,16 @@ public class Ranger : Character
 }
 public class Assassin : Character
 {
-    public Assassin(string name) : base(name, "Assassin", 90, 1, 4, 35)
+    public Assassin(Character baseCharacter) : base(
+    baseCharacter.Name,
+    "Assassin",
+     baseCharacter.MaxHealth,
+     baseCharacter.Armor - 1,
+     baseCharacter.Damage + 2,
+     baseCharacter.CritChance + 10)
     {
+        Health = baseCharacter.Health;
+        Level = baseCharacter.Level;
         Ability A1 = new Ability("Poisoned Blade", 4, 95)
         {
             StatusEffect = "poison"
@@ -524,8 +597,16 @@ public class Assassin : Character
 }
 public class Gambler : Character
 {
-    public Gambler(string name) : base(name, "Gambler", 95, 1, 3, 25)
+    public Gambler(Character baseCharacter) : base(
+    baseCharacter.Name,
+    "Gambler",
+     baseCharacter.MaxHealth + 5,
+     baseCharacter.Armor - 1,
+     baseCharacter.Damage + 1,
+     baseCharacter.CritChance)
     {
+        Health = baseCharacter.Health + 5;
+        Level = baseCharacter.Level;
         Ability A1 = new Ability("Roll the Dice", 0, 100);
         Ability A2 = new Ability("All or Nothing", 10, 55)
         {

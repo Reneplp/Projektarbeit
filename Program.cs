@@ -2,6 +2,7 @@
 bool gameRunning = true;
 float runDifficulty = 1.0f;
 float fightDifficulty = 1.0f;
+Character player = null;
 
 void ApplyDifficulty(Character enemy)
 {
@@ -47,6 +48,52 @@ Character CreateStartingCharacter()
         }
     }
 }
+
+void ChooseSubclass(ref Character player)
+{
+    Console.WriteLine("Choose your specialization:");
+
+    if (player is Warrior)
+    {
+        Console.WriteLine("1 - Berserker");
+        Console.WriteLine("2 - Knight");
+        Console.WriteLine("3 - Paladin");
+
+        string choice = Console.ReadLine();
+
+        if (choice == "1") player = new Berserker(player);
+        else if (choice == "2") player = new Knight(player);
+        else if (choice == "3") player = new Paladin(player);
+    }
+    else if (player is Wizard)
+    {
+        Console.WriteLine("1 - Necromancer");
+        Console.WriteLine("2 - Elemental Mage");
+        Console.WriteLine("3 - Battlemage");
+
+        string choice = Console.ReadLine();
+
+        if (choice == "1") player = new Necromancer(player);
+        else if (choice == "2") player = new ElementalMage(player);
+        else if (choice == "3") player = new Battlemage(player);
+    }
+    else if (player is Rogue)
+    {
+        Console.WriteLine("1 - Assassin");
+        Console.WriteLine("2 - Ranger");
+        Console.WriteLine("3 - Gambler");
+
+        string choice = Console.ReadLine();
+
+        if (choice == "1") player = new Assassin(player);
+        else if (choice == "2") player = new Ranger(player);
+        else if (choice == "3") player = new Gambler(player);
+    }
+
+    player.HasSubclass = true;
+}
+
+
 
 Ability AbilitySelection(Character player)
 {
@@ -142,7 +189,10 @@ while (gameRunning)
     Console.Clear();
     Console.WriteLine($"===== RUN {runNumber} =====");
 
-    Character player = CreateStartingCharacter();
+    if (player == null)
+    {
+        player = CreateStartingCharacter();
+    }
     if (runNumber == 1)
     {
         Thread.Sleep(2000);
@@ -228,7 +278,10 @@ while (gameRunning)
         }
 
         Healing(player);
-
+        if (fightCounter == 5 && !player.HasSubclass)
+        {
+            ChooseSubclass(ref player);
+        }
         fightDifficulty += 0.15f;
         fightCounter++;
         Thread.Sleep(2000);
@@ -237,11 +290,26 @@ while (gameRunning)
     runDifficulty += 0.4f;
     fightDifficulty = 1.0f;
 
-    Console.WriteLine("Start a new run? (y/n)");
+    Console.WriteLine("Start a new run?");
+    Console.WriteLine("1 - Continue with current character");
+    Console.WriteLine("2 - Create new character");
+    Console.WriteLine("3 - Exit");
+
     string input = Console.ReadLine();
 
-    if (input.ToLower() != "y")
+    if(input == "1")
+    {
+        player.Health = player.MaxHealth;
+        player.StatusEffect = "";
+    }
+    else if (input == "2")
+    {
+        player = null;
+    }
+    else if (input == "3")
+    {
         gameRunning = false;
+    }
 
     runNumber++;
 }
