@@ -46,20 +46,35 @@ public class Character
         int attackerDamage = Damage + TempDamage;
         int damage = ability.Damage;
         int accuracy = ability.Accuracy;
+        bool isTargetBleeding = false;
+
+        if (target.StatusEffect == "bleed")
+        {
+            isTargetBleeding = true;
+        }
 
         if (executeStatusEffect() == false)
         {
 
             if (RNG.random.Next(100) <= accuracy)
             {
-                if (ability.Damage == 0)
+                if (ability.Damage == 0 && ability.Name != "Roll the Dice")
                 {
                     ApplyStatusEffect(ability, target);
                     ReduceBuffDuration();
                     return;
                 }
+                if (ability.Name == "Roll the Dice")
+                {
+                    damage = RNG.random.Next(1, 21);
+                }
+
                 int baseDamage = (int)(damage * (1 + attackerDamage * 0.5f));
 
+                if (ability.Name == "Exsanguinate" && isTargetBleeding == true)
+                {
+                    baseDamage = (int)(baseDamage * 1.5f);
+                }
                 if (!ability.Multihit)
                 {
                     if (RNG.random.Next(100) <= CritChance)
@@ -108,6 +123,13 @@ public class Character
                     }
                     while (hitCounter <= hitNumber);
                 }
+                if (ability.Name == "Elemental Chaos")
+                {
+                    string[] effects = { "burn", "freeze", "paralyze" };
+                    ability.StatusEffect = effects[RNG.random.Next(effects.Length)];
+
+                    Console.WriteLine($"Elemental Chaos triggers {ability.StatusEffect}!");
+                }
                 ApplyStatusEffect(ability, target);
             }
             else
@@ -118,24 +140,24 @@ public class Character
     }
     public void ReduceBuffDuration()
     {
-          if (DamageDuration > 0)
-                {
-                    DamageDuration--;
-                    if (DamageDuration == 0)
-                    {
-                        TempDamage = 0;
-                        Console.WriteLine($"{Name}'s damage buff wore off.");
-                    }
-                }
-                if (ArmorDuration > 0)
-                {
-                    ArmorDuration--;
-                    if (ArmorDuration == 0)
-                    {
-                        TempArmor = 0;
-                        Console.WriteLine($"{Name}'s armor buff wore off.");
-                    }
-                }
+        if (DamageDuration > 0)
+        {
+            DamageDuration--;
+            if (DamageDuration == 0)
+            {
+                TempDamage = 0;
+                Console.WriteLine($"{Name}'s damage buff wore off.");
+            }
+        }
+        if (ArmorDuration > 0)
+        {
+            ArmorDuration--;
+            if (ArmorDuration == 0)
+            {
+                TempArmor = 0;
+                Console.WriteLine($"{Name}'s armor buff wore off.");
+            }
+        }
     }
     public void ApplyStatusEffect(Ability ability, Character target)
     {
@@ -284,25 +306,88 @@ public class Character
 
 public class Warrior : Character
 {
-    public Warrior(string name) : base(name, "Warrior", 100, 3, 1, 5)
+    public Warrior(string name) : base(name, "Warrior", 110, 3, 2, 5)
     {
-        Ability A1 = new Ability("Dummy Attack", 5, 100);
-        Ability A2 = new Ability("War Cry", 0, 100)
+        Ability A1 = new Ability("Heroic Charge", 6, 95);
+        Ability A2 = new Ability("Shield Bash", 4, 90)
         {
-            DamageModifier = 2,
-            ModifierDuration = 3,
+            StatusEffect = "paralyze"
+        };
+        Ability A3 = new Ability("Defensive Stance", 0, 100)
+        {
+            ArmorModifier = 2,
+            ModifierDuration = 2,
             SelfCast = true
         };
-        Ability[] warriorAbilities = { A1, A2 };
+        Ability[] warriorAbilities = { A1, A2, A3 };
 
         Abilities = warriorAbilities;
     }
 }
+public class Berserker : Character
+{
+    public Berserker(string name) : base(name, "Berserker", 120, 2, 4, 10)
+    {
+        Ability A1 = new Ability("Rage Strike", 8, 90);
+        Ability A2 = new Ability("Blood Frenzy", 0, 100)
+        {
+            DamageModifier = 3,
+            ModifierDuration = 2,
+            SelfCast = true,
+        };
+        Ability A3 = new Ability("Hack and Slash", 6, 85)
+        {
+            Multihit = true
+        };
+
+        Ability[] berserkerAbilities = { A1, A2, A3 };
+        Abilities = berserkerAbilities;
+    }
+}
+public class Knight : Character
+{
+    public Knight(string name) : base(name, "Knight", 140, 4, 2, 5)
+    {
+        Ability A1 = new Ability("Shield Charge", 4, 95)
+        {
+            StatusEffect = "paralyze"
+        };
+        Ability A2 = new Ability("Fortify", 0, 100)
+        {
+            ArmorModifier = 3,
+            ModifierDuration = 3,
+            SelfCast = true
+        };
+        Ability A3 = new Ability("Steady Strike", 6, 100);
+        Ability[] knightAbilities = { A1, A2, A3 };
+        Abilities = knightAbilities;
+    }
+}
+public class Paladin : Character
+{
+    public Paladin(string name) : base(name, "Paladin", 130, 3, 3, 7)
+    {
+        Ability A1 = new Ability("Smite", 7, 90);
+        Ability A2 = new Ability("Holy Oath", 0, 100)
+        {
+            ArmorModifier = 2,
+            DamageModifier = 1,
+            ModifierDuration = 2,
+            SelfCast = true
+        };
+        Ability A3 = new Ability("Judgement", 5, 85)
+        {
+            StatusEffect = "burn"
+        };
+        Ability[] paladinAbilities = { A1, A2, A3 };
+        Abilities = paladinAbilities;
+    }
+}
 public class Wizard : Character
 {
-    public Wizard(string name) : base(name, "Wizard", 100, 1, 3, 15)
+    public Wizard(string name) : base(name, "Wizard", 85, 1, 3, 15)
     {
-        Ability A1 = new Ability("Arcane Eruption", 25, 50);
+        Ability A1 = new Ability("Arcane Eruption", 14, 55);
         Ability A2 = new Ability("Arcane Missiles", 5, 95)
         {
             Multihit = true
@@ -311,14 +396,131 @@ public class Wizard : Character
         {
             StatusEffect = "burn"
         };
-        Abilities = [A1, A2, A3];
+        Ability[] wizardAbilities = { A1, A2, A3 };
+
+        Abilities = wizardAbilities;
+    }
+}
+public class Necromancer : Character
+{
+    public Necromancer(string name) : base(name, "Necromancer", 90, 1, 4, 15)
+    {
+        Ability A1 = new Ability("Hemorrhage", 4, 95)
+        {
+            StatusEffect = "bleed"
+        };
+        Ability A2 = new Ability("Exsanguinate", 8, 85);
+        Ability A3 = new Ability("Curse", 0, 100)
+        {
+            DamageModifier = -2,
+            ModifierDuration = 3,
+        };
+        Ability[] necromancerAbilities = { A1, A2, A3 };
+        Abilities = necromancerAbilities;
+    }
+}
+public class ElementalMage : Character
+{
+    public ElementalMage(string name) : base(name, "Elemental Mage", 85, 1, 3, 20)
+    {
+        Ability A1 = new Ability("Elemental Surge", 5, 90);
+        Ability A2 = new Ability("Elemental Chaos", 4, 85);
+        Ability A3 = new Ability("Mana Flare", 0, 100)
+        {
+            DamageModifier = 2,
+            ModifierDuration = 2,
+            SelfCast = true
+        };
+        Ability[] elementalmageAbilities = { A1, A2, A3 };
+        Abilities = elementalmageAbilities;
+    }
+}
+public class Battlemage : Character
+{
+    public Battlemage(string name) : base(name, "Battlemage", 110, 2, 3, 25)
+    {
+        Ability A1 = new Ability("Spellblade Slash", 6, 95)
+        {
+            StatusEffect = "bleed"
+        };
+        Ability A2 = new Ability("Arcane Guard", 0, 100)
+        {
+            ArmorModifier = 2,
+            ModifierDuration = 2,
+            SelfCast = true
+        };
+        Ability A3 = new Ability("Overcharged Strike", 7, 80);
+        Ability[] battlemageAbilities = { A1, A2, A3 };
+        Abilities = battlemageAbilities;
     }
 }
 public class Rogue : Character
 {
-    public Rogue(string name) : base(name, "Rogue", 100, 2, 2, 30) { }
+    public Rogue(string name) : base(name, "Rogue", 90, 2, 2, 25)
+    {
+        Ability A1 = new Ability("Quick Stab", 5, 95);
+        Ability A2 = new Ability("Backstab", 8, 85);
+        Ability A3 = new Ability("Rupture", 4, 90)
+        {
+            StatusEffect = "bleed"
+        };
+        Ability[] rogueAbilities = { A1, A2, A3 };
+        Abilities = rogueAbilities;
+    }
 }
 
+public class Ranger : Character
+{
+    public Ranger(string name) : base(name, "Ranger", 100, 2, 3, 20)
+    {
+        Ability A1 = new Ability("Rapid Shots", 3, 95)
+        {
+            Multihit = true
+        };
+        Ability A2 = new Ability("Piercing Arrow", 6, 90);
+        Ability A3 = new Ability("Evasion", 0, 100)
+        {
+            ArmorModifier = 1,
+            ModifierDuration = 2,
+            SelfCast = true
+        };
+        Ability[] rangerAbilities = { A1, A2, A3 };
+        Abilities = rangerAbilities;
+    }
+}
+public class Assassin : Character
+{
+    public Assassin(string name) : base(name, "Assassin", 90, 1, 4, 35)
+    {
+        Ability A1 = new Ability("Poisoned Blade", 4, 95)
+        {
+            StatusEffect = "poison"
+        };
+        Ability A2 = new Ability("Execution", 8, 85);
+        Ability A3 = new Ability("Focused Shroud", 0, 100)
+        {
+            DamageModifier = 2,
+            ModifierDuration = 2,
+            SelfCast = true
+        };
+        Ability[] assassinAbilities = { A1, A2, A3 };
+        Abilities = assassinAbilities;
+    }
+}
+public class Gambler : Character
+{
+    public Gambler(string name) : base(name, "Gambler", 95, 1, 3, 25)
+    {
+        Ability A1 = new Ability("Roll the Dice", 0, 100);
+        Ability A2 = new Ability("All or Nothing", 10, 55)
+        {
+            Multihit = true
+        };
+        Ability A3 = new Ability("Russian Roulette", 25, 50);
+        Ability[] gamblerAbilities = { A1, A2, A3 };
+        Abilities = gamblerAbilities;
+    }
+}
 public class FireElemental : Character
 {
     public FireElemental() : base("Fire Elemental", "Monster", 65, 0, 4, 5)
