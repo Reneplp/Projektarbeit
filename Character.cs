@@ -52,6 +52,12 @@ public class Character
 
             if (RNG.random.Next(100) <= accuracy)
             {
+                if (ability.Damage == 0)
+                {
+                    ApplyStatusEffect(ability, target);
+                    ReduceBuffDuration();
+                    return;
+                }
                 int baseDamage = (int)(damage * (1 + attackerDamage * 0.5f));
 
                 if (!ability.Multihit)
@@ -66,11 +72,11 @@ public class Character
 
                     if (criticalHit == false)
                     {
-                        Console.WriteLine($"{Name} attacked {target.Name} and dealt {finalDamage} damage. {target.Name} HP reduced to {target.Health}.\n");
+                        Console.WriteLine($"{Name} attacked {target.Name} with {ability.Name} and dealt {finalDamage} damage. {target.Name} HP reduced to {target.Health}.\n");
                     }
                     else
                     {
-                        Console.WriteLine($"{Name} attacked {target.Name} for a critical hit and dealt {finalDamage} damage. {target.Name} HP reduced to {target.Health}.\n");
+                        Console.WriteLine($"{Name} attacked {target.Name} with {ability.Name} for a critical hit and dealt {finalDamage} damage. {target.Name} HP reduced to {target.Health}.\n");
                     }
                 }
                 else
@@ -91,11 +97,11 @@ public class Character
 
                         if (criticalHit == false)
                         {
-                            Console.WriteLine($"{Name} attacked {target.Name} and dealt {finalDamage} damage. {target.Name} HP reduced to {target.Health}.\n");
+                            Console.WriteLine($"{Name} attacked {target.Name} with {ability.Name} and dealt {finalDamage} damage. {target.Name} HP reduced to {target.Health}.\n");
                         }
                         else
                         {
-                            Console.WriteLine($"{Name} attacked {target.Name} for a critical hit and dealt {finalDamage} damage. {target.Name} HP reduced to {target.Health}.\n");
+                            Console.WriteLine($"{Name} attacked {target.Name} with {ability.Name} for a critical hit and dealt {finalDamage} damage. {target.Name} HP reduced to {target.Health}.\n");
                         }
                         hitCounter++;
                         criticalHit = false;
@@ -103,7 +109,6 @@ public class Character
                     while (hitCounter <= hitNumber);
                 }
                 ApplyStatusEffect(ability, target);
-
             }
             else
             {
@@ -111,9 +116,40 @@ public class Character
             }
         }
     }
+    public void ReduceBuffDuration()
+    {
+          if (DamageDuration > 0)
+                {
+                    DamageDuration--;
+                    if (DamageDuration == 0)
+                    {
+                        TempDamage = 0;
+                        Console.WriteLine($"{Name}'s damage buff wore off.");
+                    }
+                }
+                if (ArmorDuration > 0)
+                {
+                    ArmorDuration--;
+                    if (ArmorDuration == 0)
+                    {
+                        TempArmor = 0;
+                        Console.WriteLine($"{Name}'s armor buff wore off.");
+                    }
+                }
+    }
     public void ApplyStatusEffect(Ability ability, Character target)
     {
-        string applyStatusEffect = ability.StatusEffect.ToLower();
+        Character affectedTarget;
+
+        if (ability.SelfCast == true)
+        {
+            affectedTarget = this;
+        }
+        else
+        {
+            affectedTarget = target;
+        }
+        string applyStatusEffect = ability.StatusEffect?.ToLower();
         if (applyStatusEffect != "")
         {
             switch (applyStatusEffect)
@@ -122,60 +158,57 @@ public class Character
                     int burnChance = RNG.random.Next(100);
                     if (burnChance <= 55)
                     {
-                        Console.WriteLine($"{target.Name} is burning!");
-                        target.StatusEffect = applyStatusEffect;
+                        Console.WriteLine($"{affectedTarget.Name} is burning!");
+                        affectedTarget.StatusEffect = applyStatusEffect;
                     }
                     break;
                 case "freeze":
                     int freezeChance = RNG.random.Next(100);
-                    if (freezeChance <= 35 && target.StatusEffect != "freeze")
+                    if (freezeChance <= 35 && affectedTarget.StatusEffect != "freeze")
                     {
-                        target.FreezeCounter = 0;
-                        Console.WriteLine($"{target.Name} is frozen!");
-                        target.StatusEffect = applyStatusEffect;
+                        affectedTarget.FreezeCounter = 0;
+                        Console.WriteLine($"{affectedTarget.Name} is frozen!");
+                        affectedTarget.StatusEffect = applyStatusEffect;
                     }
                     break;
                 case "paralyze":
                     int paralyzeChance = RNG.random.Next(100);
                     if (paralyzeChance <= 45)
                     {
-                        Console.WriteLine($"{target.Name} is paralyzed!");
-                        target.StatusEffect = applyStatusEffect;
+                        Console.WriteLine($"{affectedTarget.Name} is paralyzed!");
+                        affectedTarget.StatusEffect = applyStatusEffect;
                     }
                     break;
                 case "bleed":
                     int bleedChance = RNG.random.Next(100);
                     if (bleedChance <= 75)
                     {
-                        Console.WriteLine($"{target.Name} is bleeding!");
-                        target.StatusEffect = applyStatusEffect;
+                        Console.WriteLine($"{affectedTarget.Name} is bleeding!");
+                        affectedTarget.StatusEffect = applyStatusEffect;
                     }
                     break;
                 case "poison":
                     int poisonChance = RNG.random.Next(100);
-                    if (poisonChance <= 75 && target.StatusEffect != "poison")
+                    if (poisonChance <= 75 && affectedTarget.StatusEffect != "poison")
                     {
-                        target.PoisonCounter = 0;
-                        Console.WriteLine($"{target.Name} is poisoned!");
-                        target.StatusEffect = applyStatusEffect;
+                        affectedTarget.PoisonCounter = 0;
+                        Console.WriteLine($"{affectedTarget.Name} is poisoned!");
+                        affectedTarget.StatusEffect = applyStatusEffect;
                     }
-                    break;
-                default:
-                    Console.WriteLine("Something went wrong (Statuseffects)");
                     break;
             }
         }
         if (ability.DamageModifier != 0)
         {
-            target.TempDamage += ability.DamageModifier;
-            target.DamageDuration = ability.ModifierDuration;
-            Console.WriteLine($"{target.Name}'s damage changed by {ability.DamageModifier} for {ability.ModifierDuration} turns!");
+            affectedTarget.TempDamage += ability.DamageModifier;
+            affectedTarget.DamageDuration = ability.ModifierDuration;
+            Console.WriteLine($"{affectedTarget.Name}'s damage changed by {ability.DamageModifier} for {ability.ModifierDuration} turns!");
         }
         if (ability.ArmorModifier != 0)
         {
-            target.TempArmor += ability.ArmorModifier;
-            target.ArmorDuration = ability.ModifierDuration;
-            Console.WriteLine($"{target.Name}'s armor changed by {ability.DamageModifier} for {ability.ModifierDuration} turns!");
+            affectedTarget.TempArmor += ability.ArmorModifier;
+            affectedTarget.ArmorDuration = ability.ModifierDuration;
+            Console.WriteLine($"{affectedTarget.Name}'s armor changed by {ability.ArmorModifier} for {ability.ModifierDuration} turns!");
         }
     }
     public bool executeStatusEffect()
@@ -218,24 +251,6 @@ public class Character
                 Console.WriteLine($"{Name} lost {PoisonDamage} Hp due to poison.. New HP: {Health}");
                 break;
         }
-        if (DamageDuration > 0)
-        {
-            DamageDuration--;
-            if (DamageDuration == 0)
-            {
-                TempDamage = 0;
-                Console.WriteLine($"{Name}'s damage buff wore off.");
-            }
-        }
-        if (ArmorDuration > 0)
-        {
-            ArmorDuration--;
-            if (ArmorDuration == 0)
-            {
-                TempArmor = 0;
-                Console.WriteLine($"{Name}'s armor buff wore off.");
-            }
-        }
         return false;
     }
 
@@ -275,7 +290,8 @@ public class Warrior : Character
         Ability A2 = new Ability("War Cry", 0, 100)
         {
             DamageModifier = 2,
-            ModifierDuration = 3
+            ModifierDuration = 3,
+            SelfCast = true
         };
         Ability[] warriorAbilities = { A1, A2 };
 
@@ -315,7 +331,8 @@ public class FireElemental : Character
         Ability A3 = new Ability("Flame Surge", 0, 100)
         {
             DamageModifier = 2,
-            ModifierDuration = 2
+            ModifierDuration = 2,
+            SelfCast = true
         };
         Abilities = [A1, A2, A3];
     }
@@ -347,7 +364,8 @@ public class EarthElemental : Character
         Ability A2 = new Ability("Stone Skin", 0, 100)
         {
             ArmorModifier = 2,
-            ModifierDuration = 3
+            ModifierDuration = 3,
+            SelfCast = true
         };
         Ability A3 = new Ability("Quake", 6, 70);
         Abilities = [A1, A2, A3];
@@ -366,7 +384,8 @@ public class AirElemental : Character
         Ability A3 = new Ability("Thicken", 0, 100)
         {
             ArmorModifier = 2,
-            ModifierDuration = 3
+            ModifierDuration = 3,
+            SelfCast = true
         };
         Abilities = [A1, A2, A3];
     }
@@ -402,7 +421,8 @@ public class Behir : Character
         Ability A3 = new Ability("Harden Scale", 0, 100)
         {
             ArmorModifier = 2,
-            ModifierDuration = 3
+            ModifierDuration = 3,
+            SelfCast = true
         };
         Abilities = [A1, A2, A3];
     }
@@ -415,12 +435,14 @@ public class ClockworkSentinel : Character
         Ability A2 = new Ability("Reinforce", 0, 100)
         {
             ArmorModifier = 2,
-            ModifierDuration = 2
+            ModifierDuration = 2,
+            SelfCast = true
         };
         Ability A3 = new Ability("Overclock", 0, 100)
         {
             DamageModifier = 2,
-            ModifierDuration = 2
+            ModifierDuration = 2,
+            SelfCast = true
         };
         Abilities = [A1, A2, A3];
     }
@@ -462,7 +484,8 @@ public class ArcaneTitan : Character
         Ability A4 = new Ability("Rune Barrier", 0, 100)
         {
             ArmorModifier = 3,
-            ModifierDuration = 3
+            ModifierDuration = 3,
+            SelfCast = true
         };
         Abilities = [A1, A2, A3, A4];
     }
@@ -475,7 +498,8 @@ public class Aeternyx : Character
         Ability A2 = new Ability("Searing Bite", 6, 85)
         {
             DamageModifier = 2,
-            ModifierDuration = 2
+            ModifierDuration = 2,
+            SelfCast = true
         };
         Ability A3 = new Ability("Chilling Roar", 0, 100)
         {
@@ -489,7 +513,8 @@ public class Aeternyx : Character
         Ability A5 = new Ability("Scale Regrowth", 0, 100)
         {
             ArmorModifier = 4,
-            ModifierDuration = 3
+            ModifierDuration = 3,
+            SelfCast = true
         };
         Abilities = [A1, A2, A3, A4, A5];
     }

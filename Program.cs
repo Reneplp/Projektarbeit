@@ -1,6 +1,7 @@
 ﻿Wizard wz1 = new Wizard("Rene");
 
 Warrior w1 = new Warrior("Gabriel");
+ClockworkSentinel c1 = new ClockworkSentinel();
 
 Ability AbilitySelection(Character player)
 {
@@ -69,5 +70,5 @@ void Healing(Character player)
     Console.WriteLine($"You found a fountain and drink from it. You feel strengthened.. HP set to {player.Health}\n");
 }
 
-Fighting(wz1, w1);
+Fighting(wz1, c1);
 Healing(wz1);
