@@ -243,12 +243,14 @@ public class Character
         {
             affectedTarget.TempDamage = ability.DamageModifier;
             affectedTarget.DamageDuration = ability.ModifierDuration;
+            Console.WriteLine($"{Name} used {ability.Name}!");
             Console.WriteLine($"{affectedTarget.Name}'s damage changed by {ability.DamageModifier} for {ability.ModifierDuration} turns!");
         }
         if (ability.ArmorModifier != 0)
         {
             affectedTarget.TempArmor = ability.ArmorModifier;
             affectedTarget.ArmorDuration = ability.ModifierDuration;
+            Console.WriteLine($"{Name} used {ability.Name}!");
             Console.WriteLine($"{affectedTarget.Name}'s armor changed by {ability.ArmorModifier} for {ability.ModifierDuration} turns!");
         }
     }

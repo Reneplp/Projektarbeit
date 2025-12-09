@@ -19,11 +19,12 @@ if (choice == "2")
 {
     player = LoadGameFromFile("savegame.json");
     Console.WriteLine("\nThe Tower restores your strength...");
-    Console.WriteLine("\n But the path must be walked again.\n");
+    Console.WriteLine("\nBut the path must be walked again.\n");
     Thread.Sleep(2000);
     if (player == null)
     {
-        Console.WriteLine("No save file found. Starting new game.");
+        Console.WriteLine("No save file found. Starting new game...");
+        Thread.Sleep(3000);
         player = null;
     }
 }
@@ -136,7 +137,7 @@ Ability AbilitySelection(Character player)
     do
     {
         int counter = 0;
-        Console.WriteLine("Choose your Ability:");
+        Console.WriteLine("\nChoose your Ability:");
         foreach (Ability i in player.Abilities)
         {
             counter++;
@@ -272,7 +273,7 @@ while (gameRunning)
         else if (fightCounter == 10)
         {
             enemy = new Aeternyx();
-            Console.WriteLine("THE FINAL BOSS APPROACHES!\n");
+            Console.WriteLine("You have a feeling that this might be the last door...\n");
         }
         else
         {
@@ -304,7 +305,7 @@ while (gameRunning)
             Thread.Sleep(2000);
         }
 
-        Console.WriteLine($"Room {fightCounter}: You're attacked by a {enemy.Name}\n");
+        Console.WriteLine($"Room {fightCounter}: You're attacked by {enemy.Name}\n");
         Thread.Sleep(2000);
 
         Fighting(player, enemy);
