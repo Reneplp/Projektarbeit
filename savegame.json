@@ -1,0 +1,14 @@
+{
+  "Name": "Rene",
+  "Role": "Wizard",
+  "Health": 95,
+  "MaxHealth": 95,
+  "Armor": 2,
+  "Damage": 4,
+  "CritChance": 15,
+  "Level": 2,
+  "XP": 15,
+  "HasSubclass": false,
+  "RunDifficulty": 1,
+  "RunNumber": 1
+}

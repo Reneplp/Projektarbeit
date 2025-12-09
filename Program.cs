@@ -1,16 +1,44 @@
-﻿int runNumber = 1;
+﻿using System.Text.Json;
+
+int runNumber = 1;
 bool gameRunning = true;
 float runDifficulty = 1.0f;
 float fightDifficulty = 1.0f;
 Character player = null;
 bool endbossDefeated = false;
 
+Console.Clear();
+Console.WriteLine("=== The Cycle You Broke ===");
+Console.WriteLine("1 - New Game");
+Console.WriteLine("2 - Load Game");
+Console.WriteLine("3 - Exit");
+
+string choice = Console.ReadLine();
+
+if (choice == "2")
+{
+    player = LoadGameFromFile("savegame.json");
+    Console.WriteLine("\nThe Tower restores your strength...");
+    Console.WriteLine("\n But the path must be walked again.\n");
+    Thread.Sleep(2000);
+    if (player == null)
+    {
+        Console.WriteLine("No save file found. Starting new game.");
+        player = null;
+    }
+}
+else if (choice == "3")
+{
+    return;
+}
+
+
 void ApplyDifficulty(Character enemy)
 {
     float totalMultiplier = runDifficulty * fightDifficulty;
 
     enemy.MaxHealth = (int)(enemy.MaxHealth * (1 + (totalMultiplier - 1) * 1.1f));
-    enemy.Health = enemy.MaxHealth; // immer voll starten
+    enemy.Health = enemy.MaxHealth;
 
     enemy.Damage = (int)(enemy.Damage * (1 + (totalMultiplier - 1) * 1.25f));
     enemy.Armor = (int)(enemy.Armor * (1 + (totalMultiplier - 1) * 0.75f));
@@ -154,6 +182,7 @@ void Fighting(Character player, Character enemy)
             if (enemy is Aeternyx && enemy.Health <= 0)
             {
                 endbossDefeated = true;
+                SaveGameToFile(player);
             }
             Console.WriteLine($"{enemy.Name} got defeated. You won!");
             player.GainXP(20);
@@ -285,11 +314,12 @@ while (gameRunning)
             Console.WriteLine("You died...");
             break;
         }
-
+        SaveGameToFile(player);
         Healing(player);
         if (fightCounter == 5 && !player.HasSubclass)
         {
             ChooseSubclass(ref player);
+            SaveGameToFile(player);
         }
         fightDifficulty += 0.35f;
         fightCounter++;
@@ -324,3 +354,86 @@ while (gameRunning)
         gameRunning = false;
     }
 }
+void SaveGameToFile(Character player)
+{
+    SaveGame save = new SaveGame
+    {
+        Name = player.Name,
+        Role = player.Role,
+        Health = player.Health,
+        MaxHealth = player.MaxHealth,
+        Armor = player.Armor,
+        Damage = player.Damage,
+        CritChance = player.CritChance,
+        Level = player.Level,
+        XP = player.XP,
+        HasSubclass = player.HasSubclass,
+        RunDifficulty = runDifficulty,
+        RunNumber = runNumber
+    };
+
+    string json = JsonSerializer.Serialize(save, new JsonSerializerOptions { WriteIndented = true });
+    File.WriteAllText("savegame.json", json);
+}
+
+Character LoadGameFromFile(string path)
+{
+    if (!File.Exists(path))
+        return null;
+
+    string json = File.ReadAllText(path);
+    SaveGame save = JsonSerializer.Deserialize<SaveGame>(json);
+
+    Character baseCharacter = new Character(
+        save.Name,
+        "Temp",
+        save.MaxHealth,
+        save.Armor,
+        save.Damage,
+        save.CritChance
+    );
+
+    baseCharacter.Health = save.Health;
+    baseCharacter.Level = save.Level;
+    baseCharacter.XP = save.XP;
+    baseCharacter.HasSubclass = save.HasSubclass;
+
+    Character player = save.Role switch
+    {
+        "Warrior" => new Warrior(save.Name),
+        "Wizard" => new Wizard(save.Name),
+        "Rogue" => new Rogue(save.Name),
+
+        "Berserker" => new Berserker(baseCharacter),
+        "Knight" => new Knight(baseCharacter),
+        "Paladin" => new Paladin(baseCharacter),
+
+        "Necromancer" => new Necromancer(baseCharacter),
+        "Elemental Mage" => new ElementalMage(baseCharacter),
+        "Battlemage" => new Battlemage(baseCharacter),
+
+        "Assassin" => new Assassin(baseCharacter),
+        "Ranger" => new Ranger(baseCharacter),
+        "Gambler" => new Gambler(baseCharacter),
+
+        _ => null
+    };
+
+    if (player == null)
+        return null;
+
+    player.Health = save.Health;
+    player.MaxHealth = save.MaxHealth;
+    player.Armor = save.Armor;
+    player.Damage = save.Damage;
+    player.CritChance = save.CritChance;
+    player.Level = save.Level;
+    player.XP = save.XP;
+    player.HasSubclass = save.HasSubclass;
+
+    runNumber = save.RunNumber;
+    runDifficulty = save.RunDifficulty;
+
+    return player;
+}
+
