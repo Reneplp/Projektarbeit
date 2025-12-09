@@ -2,7 +2,7 @@
 public class Character
 {
     public string Name { get; set; }
-    public string Role { get; set; } // TODO
+    public string Role { get; set; }
     public int Health { get; set; }
     public int MaxHealth { get; set; }
     public int Armor { get; set; }

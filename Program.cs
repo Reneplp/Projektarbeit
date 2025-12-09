@@ -33,7 +33,7 @@ else if (choice == "3")
     return;
 }
 
-
+// Balancing-Werte von KI erstellt
 void ApplyDifficulty(Character enemy)
 {
     float totalMultiplier = runDifficulty * fightDifficulty;
@@ -180,12 +180,20 @@ void Fighting(Character player, Character enemy)
         player.Attack(selectedAbility, enemy);
         if (enemy.Health <= 0)
         {
+            Console.WriteLine($"{enemy.Name} got defeated. You won!");
             if (enemy is Aeternyx && enemy.Health <= 0)
             {
                 endbossDefeated = true;
                 SaveGameToFile(player);
+                Console.WriteLine("With your final hit you manage to beat the Hydra.");
+                Thread.Sleep(2000);
+                Console.WriteLine("The door slams open. A man comes running in and shouts at you..");
+                Thread.Sleep(2000);
+                Console.WriteLine("NO! What have you done?? Do you not realize, that Aeternyx was the protector of our timeline?");
+                Thread.Sleep(2000);
+                Console.WriteLine("You fall to the ground. it feels like all power is drained from you. You can barely keep your eyes open...");
             }
-            Console.WriteLine($"{enemy.Name} got defeated. You won!");
+            
             player.GainXP(20);
             player.StatusEffect = "";
             Thread.Sleep(2000);
@@ -244,7 +252,7 @@ while (gameRunning)
     else if (runNumber == 2)
     {
         Thread.Sleep(2000);
-        Console.WriteLine("\nYou wake up in a stone tower.\n");
+        Console.WriteLine("\nYou wake up and open your eyes, realizing you are laying in a stone tower.\n");
         Thread.Sleep(2000);
         Console.WriteLine("Again.\n");
         Thread.Sleep(2000);
@@ -355,6 +363,10 @@ while (gameRunning)
         gameRunning = false;
     }
 }
+
+
+// Save-Files durch Hilfe mit KI erstellt, KI-Vorschlag mit richtigen Werten angepasst. 
+
 void SaveGameToFile(Character player)
 {
     SaveGame save = new SaveGame
