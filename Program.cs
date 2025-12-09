@@ -3,16 +3,22 @@ bool gameRunning = true;
 float runDifficulty = 1.0f;
 float fightDifficulty = 1.0f;
 Character player = null;
+bool endbossDefeated = false;
 
 void ApplyDifficulty(Character enemy)
 {
     float totalMultiplier = runDifficulty * fightDifficulty;
 
-    enemy.Health = (int)(enemy.Health * totalMultiplier);
-    enemy.MaxHealth = enemy.Health;
+    enemy.MaxHealth = (int)(enemy.MaxHealth * (1 + (totalMultiplier - 1) * 1.1f));
+    enemy.Health = enemy.MaxHealth; // immer voll starten
 
-    enemy.Damage = (int)(enemy.Damage * totalMultiplier);
-    enemy.Armor = (int)(enemy.Armor * (1 + (totalMultiplier - 1) * 0.5f));
+    enemy.Damage = (int)(enemy.Damage * (1 + (totalMultiplier - 1) * 1.25f));
+    enemy.Armor = (int)(enemy.Armor * (1 + (totalMultiplier - 1) * 0.75f));
+
+    enemy.CritChance = Math.Min(
+        enemy.CritChance + (int)(totalMultiplier * 5),
+        75
+    );
 }
 
 
@@ -145,6 +151,10 @@ void Fighting(Character player, Character enemy)
         player.Attack(selectedAbility, enemy);
         if (enemy.Health <= 0)
         {
+            if (enemy is Aeternyx && enemy.Health <= 0)
+            {
+                endbossDefeated = true;
+            }
             Console.WriteLine($"{enemy.Name} got defeated. You won!");
             player.GainXP(20);
             player.StatusEffect = "";
@@ -281,12 +291,15 @@ while (gameRunning)
         {
             ChooseSubclass(ref player);
         }
-        fightDifficulty += 0.15f;
+        fightDifficulty += 0.35f;
         fightCounter++;
         Thread.Sleep(2000);
     }
 
-    runDifficulty += 0.4f;
+    if (endbossDefeated == true)
+    {
+        runDifficulty += 0.75f;
+    }
     fightDifficulty = 1.0f;
 
     Console.WriteLine("Start a new run?");
@@ -296,11 +309,11 @@ while (gameRunning)
 
     string input = Console.ReadLine();
 
-    if(input == "1")
+    if (input == "1")
     {
         player.Health = player.MaxHealth;
         player.StatusEffect = "";
-          
+        runNumber++;
     }
     else if (input == "2")
     {
@@ -310,6 +323,4 @@ while (gameRunning)
     {
         gameRunning = false;
     }
-
-    runNumber++;
 }

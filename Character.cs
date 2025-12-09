@@ -46,6 +46,10 @@ public class Character
         bool criticalHit = false;
         int armor = target.Armor + target.TempArmor;
         int attackerDamage = Damage + TempDamage;
+        if (attackerDamage < 0)
+        {
+            attackerDamage = 0;
+        }
         int damage = ability.Damage;
         int accuracy = ability.Accuracy;
         bool isTargetBleeding = false;
@@ -63,7 +67,6 @@ public class Character
                 if (ability.Damage == 0 && ability.Name != "Roll the Dice")
                 {
                     ApplyStatusEffect(ability, target);
-                    ReduceBuffDuration();
                     return;
                 }
                 if (ability.Name == "Roll the Dice")
@@ -238,13 +241,13 @@ public class Character
         }
         if (ability.DamageModifier != 0)
         {
-            affectedTarget.TempDamage += ability.DamageModifier;
+            affectedTarget.TempDamage = ability.DamageModifier;
             affectedTarget.DamageDuration = ability.ModifierDuration;
             Console.WriteLine($"{affectedTarget.Name}'s damage changed by {ability.DamageModifier} for {ability.ModifierDuration} turns!");
         }
         if (ability.ArmorModifier != 0)
         {
-            affectedTarget.TempArmor += ability.ArmorModifier;
+            affectedTarget.TempArmor = ability.ArmorModifier;
             affectedTarget.ArmorDuration = ability.ModifierDuration;
             Console.WriteLine($"{affectedTarget.Name}'s armor changed by {ability.ArmorModifier} for {ability.ModifierDuration} turns!");
         }
@@ -289,6 +292,7 @@ public class Character
                 Console.WriteLine($"{Name} lost {PoisonDamage} Hp due to poison.. New HP: {Health}");
                 break;
         }
+        ReduceBuffDuration();
         return false;
     }
 
@@ -325,7 +329,7 @@ public class Warrior : Character
 {
     public Warrior(string name) : base(name, "Warrior", 110, 3, 2, 5)
     {
-        Ability A1 = new Ability("Heroic Charge", 400, 100); // ursprüngliche values: 6, 95
+        Ability A1 = new Ability("Heroic Charge", 6, 95); // ursprüngliche values: 6, 95
         Ability A2 = new Ability("Shield Bash", 4, 90)
         {
             StatusEffect = "paralyze"
@@ -413,8 +417,8 @@ public class Paladin : Character
     {
         Health = baseCharacter.Health + 20;
         Level = baseCharacter.Level;
-    
-    
+
+
         Ability A1 = new Ability("Smite", 7, 90);
         Ability A2 = new Ability("Holy Oath", 0, 100)
         {
@@ -531,7 +535,7 @@ public class Rogue : Character
     public Rogue(string name) : base(name, "Rogue", 90, 2, 2, 25)
     {
         Ability A1 = new Ability("Quick Stab", 5, 95);
-        Ability A2 = new Ability("Backstab", 8, 85);
+        Ability A2 = new Ability("Backstab", 8, 80);
         Ability A3 = new Ability("Rupture", 4, 90)
         {
             StatusEffect = "bleed"
